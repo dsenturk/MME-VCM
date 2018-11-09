@@ -1,11 +1,11 @@
-# MME-VCM
+﻿# MME-VCM
 CONTENTS OF THIS FOLDER ——————————————
 
 MMEVCM_tutorial.R : A step-by-step implementation of MME-VCM and the associated procedures described in "A Multilevel Mixed Effects Varying Coeffcient Model with Multilevel Predictors and Random Effects for Modeling
 Hospitalization Risk in Patients on Dialysis".
 
 MMEVCM_estimation.R : Function for estimation of MME-VCM model parameters described in "A Multilevel Mixed Effects Varying Coeffcient Model with Multilevel Predictors and Random Effects for Modeling
-Hospitalization Risk in Patients on Dialysis", including estimation of time-varying effects of multilevel risk factors variances of subject and facility specific random effects.
+Hospitalization Risk in Patients on Dialysis", including estimation of time-varying effects of multilevel risk factors and variances of subject- and facility-specific random effects.
 
 MMEVCM_simulation.R : Function for simulating one data set under the simulation design described in Section 4.1.
 
