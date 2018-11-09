@@ -95,7 +95,7 @@ MMEVCM_simulation <- function(numF # number of facilities (scalar)
   # Construct Data set
   #######################################################
   
-  # Generate number of subjects per facility from half normal distribution
+  # Generate number of subjects per facility from a half normal distribution
   xx <- rnorm(numF * 4,sd=30)
   x <- abs(xx)[abs(xx)>=20]
   x <- round(x) 

@@ -10,7 +10,7 @@
 #############################################################################
 ## Tutorial Outline:
 ## 1. Simulate hospitalization outcome data (MMEVCM_simulation.R)
-## 2. Perform MMEVCM estimation and inference on multilevel risk factors (MMEVCM_estimation.R)
+## 2. Perform MMEVCM estimation and inference on multilevel risk factors and variance components (MMEVCM_estimation.R)
 ## 3. Visualization of MMEVCM results
 #############################################################################
 
@@ -36,14 +36,14 @@ library(lme4)
 data <- MMEVCM_simulation(numF = 100)  # MMEVCM_simulation.R
 
 #############################################################################
-# 2. Perform MMEVCM estimation and inference on multilevel risk factors 
+# 2. Perform MMEVCM estimation and inference on multilevel risk factors and variance components
 #############################################################################
 
 # NOTE: Performing MMEVCM estimation with 100 facilities will take approximately eight minutes.
 
 MMEVCMEst <- MMEVCM_estimation(data = data, bwThetaBeta = .22)  # MMEVCM_estimation.R
 
- #############################################################################
+#############################################################################
 # 3. Visualization of MMEVCM results
 ############################################################################# 
 
@@ -125,8 +125,6 @@ title(xlab = "t",ylab=expression(widehat(beta)[2](t)), line=2, cex.lab=1.5)
 lines(gridPoints,beta2F,lwd=2,lty=2)
 polygon(c(gridPoints, rev(gridPoints)), c(beta2L, rev(beta2U)), col = rgb(.25, .25, .25, 0.5), border = NA)
 
-
-
 # Plot theta1(t)
 theta1U <- thetaVCMEst[1,] + 2 * stdtheta[1,]
 theta1L <- thetaVCMEst[1,] - 2 * stdtheta[1,]
@@ -149,8 +147,8 @@ polygon(c(gridPoints, rev(gridPoints)), c(theta2L, rev(theta2U)), col = rgb(.25,
 
 
 # Print the estimated variance components
-cat(paste("Estimated variance of subject-specific random effects:", sigma2bEst),"\n", paste("Standard error:", sigma2bSE), "\n", paste("True variance of subject-specific random effects:", 1),
-    "\n", paste("Estimated variance of facility-specific random effects:", sigma2gammaEst),"\n", paste("Standard error:", sigma2gammaSE), "\n", 
+cat(paste("Estimated variance of subject-specific random effects:", sigma2bEst),"\n", paste("Corresponded standard error:", sigma2bSE), "\n", paste("True variance of subject-specific random effects:", 1),
+    "\n", paste("Estimated variance of facility-specific random effects:", sigma2gammaEst),"\n", paste("Corresponded standard error:", sigma2gammaSE), "\n", 
     paste("True variance of facility-specific random effects:", 1))
 
 dev.off()

@@ -18,20 +18,20 @@ MMEVCM_estimation <- function(data,       # data.frame in long format with nine 
   #############################################################################
   ## Description: Function for estimation of MME-VCM model parameters described in "A Multilevel Mixed Effects Varying Coeffcient Model 
   ##              with Multilevel Predictors and Random Effects for Modeling Hospitalization Risk in Patients on Dialysis", including estimation 
-  ##              and inference of time-varying effects of multilevel risk factors and variance of multilevel random effects. 
+  ##              and inference of time-varying effects of multilevel risk factors and variance components. 
   ## Args:        see above
   ## Returns:     list()
   ##              theta: estimated facility-level risk factor effects (matrix of dimension 2*20)
   ##              beta: estimated subject-level risk factor effects and the intercept term (matrix of dimension 3*20) 
-  ##              sigma2b: estimated variance of subject specific random effects (scalar)
-  ##              sigma2gamma: estimated variance of facility specific random effects (scalar)
+  ##              sigma2b: estimated variance of subject-specific random effects (scalar)
+  ##              sigma2gamma: estimated variance of facility-specific random effects (scalar)
   ##              thetaSE: standard error of estimated facility-level risk factor effects (matrix of dimension 2*20)
   ##              betaSE: standard error of estimated subject-level risk factor effects and the intercept term (matrix of dimension 3*20)
-  ##              sigma2bSE: standard error of estimated variance of subject specific random effects (scalar)
-  ##              sigma2gammaSE: standard error of estimated variance of facility specific random effects (scalar)
-  ##              bijEst: estimated posterior mean of subject-level random effects (vector of length sum(Ni))
-  ##              gammaiEst: estimated posterior mean of facility-level random effects (vector of length numF)
-  ##              grid: grid points used to estimate the varying coefficient functions gammai(t), theta(t) and beta(t) (vector of length 20)
+  ##              sigma2bSE: standard error of estimated variance of subject-specific random effects (scalar)
+  ##              sigma2gammaSE: standard error of estimated variance of facility-specific random effects (scalar)
+  ##              bijEst: estimated posterior mean of subject-specific random effects (vector of length sum(Ni))
+  ##              gammaiEst: estimated posterior mean of facility-specific random effects (vector of length numF)
+  ##              grid: grid points used to estimate the varying coefficient functions theta(t) and beta(t) (vector of length 20)
   #############################################################################
   
   # Install missing packages
@@ -104,15 +104,15 @@ MMEVCM_estimation <- function(data,       # data.frame in long format with nine 
   # Implement the approximate EM algorithm as described in Section 2.2
   ###########################################################################
   
-  # Find initial values for theta(t) and beta(t) as well as the variances of multilevel random effects
-  # from the non-time-varying risk effects generalized linear model
+  # Find initial values for theta(t) and beta(t) as well as the variance components
+  # from the non-time-varying generalized multilevel mixed effects model
   gm1b <- glmer(y ~ x1 + x2 + x0 + z1 + z2 + (1 | fid) + (1 | sid) - 1, data = df, family = binomial, nAGQ = 1)
   
   IniSig <- getME(gm1b,"theta")^2
   IniThetaBeta <- getME(gm1b,"beta") 
   thetaEsts <- IniThetaBeta[(nbeta+1):(ntheta+nbeta)]
   betaEsts <- IniThetaBeta[1:nbeta]
-  # End of finding initial values for theta(t) and beta(t)
+  # End of finding initial values for theta(t), beta(t) and the variance components
   
   # Implement estimation steps as described in Section 2.2
   # Step 1: set initial values for fitting MME-VCM
@@ -133,7 +133,7 @@ MMEVCM_estimation <- function(data,       # data.frame in long format with nine 
     oldObj <- df$gammaEst + df$bisEst + oldlpred
     oldPijks <- invLogit(oldObj) # P0ijk from the previous iteration
     
-    # Step 2 (E-step): update posterior means and variances of multilevel random effects using fully exponential Laplace approximation
+    # Step 2 (E-step): update posterior means and variances of multilevel random effects using the fully exponential Laplace approximation
     meangamma.C <- c()
     vargamma.C <- c()
     meanb.C <- c()
@@ -310,10 +310,10 @@ MMEVCM_estimation <- function(data,       # data.frame in long format with nine 
       varb.C <- c(varb.C, vij0.C)    
       corbgamma <- c(corbgamma, rij0.C)
     }
-    df$bisEst <- rep(meanb.C, numOB) # posterior mean of subject specific random effects
-    df$gammaEst <- rep(meangamma.C, numDisPF) # posterior mean of facility specific random effects
-    df$vb <- rep(varb.C, numOB) # posterior variance of subject specific random effects
-    df$vgamma <- rep(vargamma.C, numDisPF) # posterior variance of facility specific random effects
+    df$bisEst <- rep(meanb.C, numOB) # posterior mean of subject-specific random effects
+    df$gammaEst <- rep(meangamma.C, numDisPF) # posterior mean of facility-specific random effects
+    df$vb <- rep(varb.C, numOB) # posterior variance of subject-specific random effects
+    df$vgamma <- rep(vargamma.C, numDisPF) # posterior variance of facility-specific random effects
     df$rbgamma <- rep(corbgamma, numOB) # posterior covariance between subject and facility random effects
     
     # Step 3 (M-step): update sigma2b and sigmagamma by maximizing the incomplete log-likelihood
@@ -368,7 +368,7 @@ MMEVCM_estimation <- function(data,       # data.frame in long format with nine 
       betaVCMEst <- OldbetaVCMEst + ss*t(Phi_OneStep[,(ntheta+1):(ntheta+nbeta)]) # Update beta(t)
       thetaVCMEst1 <- OldthetaVCMEst1 + ss*t(Phi_OneStep[,(ntheta+nbeta+1):(2*ntheta+nbeta)])
       betaVCMEst1 <- OldbetaVCMEst1 + ss*t(Phi_OneStep[,(2*ntheta+nbeta+1):(2*ntheta+2*nbeta)])
-      # Calculate global log-likelihood with updated of theta(t) and beta(t)
+      # Calculate global log-likelihood with updated estimates of theta(t) and beta(t)
       newlpred <- rowSums(t(thetaVCMEst)[df$r,]*df[,5:(4+ntheta)]) + rowSums(t(betaVCMEst)[df$r,]*df[,(5+ntheta):(4+ntheta+nbeta)])
       newObj <-df$gammaEst + df$bisEst + newlpred
       newPijks <- invLogit(newObj)
@@ -387,13 +387,16 @@ MMEVCM_estimation <- function(data,       # data.frame in long format with nine 
     numIter <- numIter + 1   
   }
   
+  
+  ###########################################################################
+  # Perform inference on model parameters as described in Section 2.2
+  ###########################################################################
   # Compute standard error
   score.sigmab <- NA
   score.sigmagamma <- NA
   score.coeff <- c()
   tscore.coeff <- matrix(0, nrow = numF, ncol = 2*(ntheta + nbeta))
   std.score.local <- matrix(0, nrow = nbeta + ntheta, ncol = ngrid)
-  #Standard error
   for(j in 1:ngrid) {
     to <- gridPoints[j]
     indices1 <- (abs(df$t-to) < bwThetaBeta)
