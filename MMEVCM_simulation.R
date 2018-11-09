@@ -1,7 +1,7 @@
 MMEVCM_simulation <- function(numF # number of facilities (scalar)
                              ){
   
-  #############################################################################
+  ##############################################################################
   ## Description: Function for simulating one data set under the simulation design described
   ##              in Section 4.1.
   ## Args: see above
@@ -16,7 +16,7 @@ MMEVCM_simulation <- function(numF # number of facilities (scalar)
   # x1: subject-level covariate (vector of length sum(Nij))
   # x2: subject-level covariate (vector of length sum(Nij))
   # x0: a vector of 1s to add the intercept term (vector of length sum(Nij)) 
-  ############################################################################# 
+  ############################################################################## 
   
   # Install missing packages
   list.of.packages <- c("MASS", "statmod", "mvtnorm", "bisoreg", "lme4")

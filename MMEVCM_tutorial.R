@@ -145,7 +145,6 @@ title(xlab = "t",ylab=expression(widehat(theta)[2](t)), line=2, cex.lab=1.5)
 lines(gridPoints,theta2F,lwd=2,lty=2)
 polygon(c(gridPoints, rev(gridPoints)), c(theta2L, rev(theta2U)), col = rgb(.25, .25, .25, 0.5), border = NA)
 
-
 # Print the estimated variance components
 cat(paste("Estimated variance of subject-specific random effects:", sigma2bEst),"\n", paste("Corresponded standard error:", sigma2bSE), "\n", paste("True variance of subject-specific random effects:", 1),
     "\n", paste("Estimated variance of facility-specific random effects:", sigma2gammaEst),"\n", paste("Corresponded standard error:", sigma2gammaSE), "\n", 

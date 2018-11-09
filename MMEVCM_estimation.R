@@ -15,7 +15,7 @@ MMEVCM_estimation <- function(data,       # data.frame in long format with nine 
                              bwThetaBeta  # bandwidth for estimating theta(t) and beta(t) (scalar)
                              ){
   
-  #############################################################################
+  ##############################################################################
   ## Description: Function for estimation of MME-VCM model parameters described in "A Multilevel Mixed Effects Varying Coeffcient Model 
   ##              with Multilevel Predictors and Random Effects for Modeling Hospitalization Risk in Patients on Dialysis", including estimation 
   ##              and inference of time-varying effects of multilevel risk factors and variance components. 
@@ -32,7 +32,7 @@ MMEVCM_estimation <- function(data,       # data.frame in long format with nine 
   ##              bijEst: estimated posterior mean of subject-specific random effects (vector of length sum(Ni))
   ##              gammaiEst: estimated posterior mean of facility-specific random effects (vector of length numF)
   ##              grid: grid points used to estimate the varying coefficient functions theta(t) and beta(t) (vector of length 20)
-  #############################################################################
+  ##############################################################################
   
   # Install missing packages
   list.of.packages <- c("MASS", "statmod", "mvtnorm", "bisoreg", "lme4")
